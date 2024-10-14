@@ -1,0 +1,582 @@
+<html><head><base href="https://www.balldodgefrenzy.com/"><title>Ball Dodge Frenzy</title><style>
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Orbitron', sans-serif;
+    background-color: black;
+    color: #00FFFF;
+    overflow: hidden;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#home-screen, #game-screen, #death-screen, #tutorial, #settings-menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#home-screen {
+    z-index: 10;
+    background: radial-gradient(circle, #000033, #000000);
+}
+
+#game-screen {
+    z-index: 5;
+}
+
+#death-screen {
+    z-index: 15;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+}
+
+#tutorial {
+    z-index: 20;
+    background-color: rgba(0, 0, 51, 0.9);
+    display: none;
+}
+
+#settings-menu {
+    z-index: 25;
+    background-color: rgba(0, 0, 51, 0.9);
+    display: none;
+}
+
+#nightmare-modal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 51, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 30;
+    color: #00FFFF;
+    text-align: center;
+}
+
+#nightmare-modal button {
+    margin: 10px;
+    padding: 5px 10px;
+}
+
+h1 {
+    font-size: 4em;
+    color: #00FFFF;
+    text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #00FFFF;
+    margin-bottom: 30px;
+    animation: titlePulse 2s infinite;
+}
+
+@keyframes titlePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+button {
+    font-size: 1.5em;
+    padding: 10px 20px;
+    margin: 10px;
+    border: 2px solid #00FFFF;
+    border-radius: 5px;
+    background-color: transparent;
+    color: #00FFFF;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px #00FFFF;
+    box-shadow: 0 0 10px #00FFFF;
+}
+
+@keyframes buttonHover {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+button:hover {
+    background-color: #00FFFF;
+    color: #000033;
+    animation: buttonHover 0.5s infinite;
+    box-shadow: 0 0 20px #00FFFF;
+}
+
+#how-to-play {
+    position: absolute;
+    bottom: 20px;
+    font-size: 1em;
+    background-color: rgba(0, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+#level-display {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    color: #00FFFF;
+    text-shadow: 0 0 10px #00FFFF;
+}
+
+.level-up {
+    animation: levelUp 0.5s ease-out;
+}
+
+@keyframes levelUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.ball {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #ff0000);
+    box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+    }
+    to {
+        box-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000;
+    }
+}
+
+#player {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #00FFFF;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #00FFFF;
+    pointer-events: none;
+}
+
+@keyframes shieldActivate {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#shield {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 255, 255, 0.3);
+    border: 2px solid #00FFFF;
+    box-shadow: 0 0 20px #00FFFF;
+    display: none;
+    animation: shieldActivate 0.3s ease-out;
+}
+
+#close-tutorial {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2em;
+    background: none;
+    border: none;
+    color: #00FFFF;
+    cursor: pointer;
+}
+
+#close-tutorial:hover {
+    color: #FF00FF;
+}
+
+.score {
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+
+#game-over-text {
+    font-size: 5em;
+    color: #FF00FF;
+    text-shadow: 0 0 10px #FF00FF, 0 0 20px #FF00FF, 0 0 30px #FF00FF;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+</style></head><body>
+<div id="game-container">
+    <div id="home-screen">
+        <h1>Ball Dodge Frenzy</h1>
+        <button id="play-btn">Play</button>
+        <button id="settings-btn">Settings</button>
+        <button id="how-to-play">How to Play</button>
+    </div>
+    
+    <div id="game-screen">
+        <div id="level-display">Level 1</div>
+        <div id="shield"></div>
+    </div>
+    
+    <div id="death-screen">
+        <h2 id="game-over-text">Game Over</h2>
+        <p class="score">Your Score: <span id="final-score"></span></p>
+        <p class="score">Level Reached: <span id="final-level"></span></p>
+        <button id="retry-btn">Retry</button>
+        <button id="home-btn">Home</button>
+    </div>
+    
+    <div id="tutorial">
+        <button id="close-tutorial">&times;</button>
+        <h3>How to Play</h3>
+        <p>Avoid the red balls with your mouse or finger. Don't touch the balls, or you'll lose. The game gets harder each level with more and faster balls. At level 10, balls will move from left to right. Right-click to activate a shield for 10 seconds. Survive as long as you can!</p>
+    </div>
+    
+    <div id="settings-menu" style="display: none;">
+        <h2>Difficulty</h2>
+        <button id="easy-btn">Easy</button>
+        <button id="medium-btn">Medium</button>
+        <button id="hard-btn">Hard</button>
+        <button id="close-settings">&times;</button>
+    </div>
+
+    <button id="nightmare-btn" style="position: absolute; top: 0; right: 0; width: 50px; height: 50px; opacity: 0; cursor: pointer; z-index: 100;"></button>
+    
+    <div id="nightmare-modal" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 51, 0.9); padding: 20px; border-radius: 10px; z-index: 30;">
+        <h3>Nightmare Mode</h3>
+        <p>Are you sure you want to activate Nightmare mode?</p>
+        <button id="nightmare-yes">Yes</button>
+        <button id="nightmare-no">No</button>
+    </div>
+</div>
+
+<script>
+const gameContainer = document.getElementById('game-container');
+const homeScreen = document.getElementById('home-screen');
+const gameScreen = document.getElementById('game-screen');
+const deathScreen = document.getElementById('death-screen');
+const playBtn = document.getElementById('play-btn');
+const settingsBtn = document.getElementById('settings-btn');
+const howToPlayBtn = document.getElementById('how-to-play');
+const retryBtn = document.getElementById('retry-btn');
+const homeBtn = document.getElementById('home-btn');
+const levelDisplay = document.getElementById('level-display');
+const tutorial = document.getElementById('tutorial');
+const closeTutorialBtn = document.getElementById('close-tutorial');
+const shield = document.getElementById('shield');
+const nightmareBtn = document.getElementById('nightmare-btn');
+const nightmareModal = document.getElementById('nightmare-modal');
+const nightmareYesBtn = document.getElementById('nightmare-yes');
+const nightmareNoBtn = document.getElementById('nightmare-no');
+
+let level = 1;
+let balls = [];
+let gameLoop;
+let levelLoop;
+let player;
+let isGameActive = false;
+let baseSpeed = 2;
+let ballsPerLevel = 2;
+let shieldActive = false;
+let shieldUsed = false;
+let ballsDestroyedByShield = 0;
+let shieldCooldown = false;
+let difficulty = 'medium'; // Default difficulty
+let speedMultiplier = 1;
+let ballMultiplier = 1;
+let isNightmareMode = false;
+
+function startGame() {
+    homeScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+    deathScreen.style.display = 'none';
+    level = 1;
+    balls = [];
+    
+    speedMultiplier = isNightmareMode ? 3 : 1;
+    ballMultiplier = isNightmareMode ? 3 : 1;
+    
+    shieldActive = false;
+    shieldUsed = false;
+    ballsDestroyedByShield = 0;
+    
+    if (difficulty === 'easy') {
+        baseSpeed = 1.5;
+        ballsPerLevel = 1;
+    } else if (difficulty === 'medium') {
+        baseSpeed = 2;
+        ballsPerLevel = 2;
+    } else if (difficulty === 'hard') {
+        baseSpeed = 4;
+        ballsPerLevel = 4;
+    }
+    
+    isGameActive = true;
+    createPlayer();
+    gameLoop = setInterval(updateGame, 20);
+    levelLoop = setInterval(levelUp, 12000); // Level changes every 12 seconds
+    levelDisplay.textContent = `Level ${level}`;
+    clearBalls();
+    createInitialBalls();
+}
+
+function createPlayer() {
+    if (player) {
+        gameScreen.removeChild(player);
+    }
+    player = document.createElement('div');
+    player.id = 'player';
+    gameScreen.appendChild(player);
+    gameContainer.addEventListener('mousemove', movePlayer);
+    gameContainer.addEventListener('touchmove', movePlayerTouch);
+    gameContainer.addEventListener('contextmenu', activateShield);
+}
+
+function movePlayer(e) {
+    if (!isGameActive) return;
+    player.style.left = e.clientX + 'px';
+    player.style.top = e.clientY + 'px';
+    shield.style.left = e.clientX - 17 + 'px';
+    shield.style.top = e.clientY - 17 + 'px';
+    checkCollision();
+}
+
+function movePlayerTouch(e) {
+    if (!isGameActive) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    player.style.left = touch.clientX + 'px';
+    player.style.top = touch.clientY + 'px';
+    shield.style.left = touch.clientX - 17 + 'px';
+    shield.style.top = touch.clientY - 17 + 'px';
+    checkCollision();
+}
+
+function createBall() {
+    const ball = document.createElement('div');
+    ball.className = 'ball';
+    if (level < 10) {
+        ball.style.left = Math.random() * (gameContainer.clientWidth - 30) + 'px';
+        ball.style.top = '-30px';
+    } else {
+        ball.style.left = '-30px';
+        ball.style.top = Math.random() * (gameContainer.clientHeight - 30) + 'px';
+    }
+    gameScreen.appendChild(ball);
+    
+    let ballSpeed = (baseSpeed + Math.random() * 2) * speedMultiplier * (isNightmareMode ? 3 : 1);
+    if (difficulty === 'easy') {
+        ballSpeed *= 0.75;
+    } else if (difficulty === 'hard') {
+        ballSpeed *= 1.5;
+    }
+
+    balls.push({
+        element: ball,
+        speed: ballSpeed,
+        direction: level < 10 ? 'down' : 'right'
+    });
+}
+
+function createInitialBalls() {
+    for (let i = 0; i < ballsPerLevel; i++) {
+        createBall();
+    }
+}
+
+function updateGame() {
+    balls.forEach((ball, index) => {
+        if (ball.direction === 'down') {
+            ball.element.style.top = ball.element.offsetTop + ball.speed + 'px';
+            if (ball.element.offsetTop > gameContainer.clientHeight) {
+                gameScreen.removeChild(ball.element);
+                balls.splice(index, 1);
+            }
+        } else if (ball.direction === 'right') {
+            ball.element.style.left = ball.element.offsetLeft + ball.speed + 'px';
+            if (ball.element.offsetLeft > gameContainer.clientWidth) {
+                gameScreen.removeChild(ball.element);
+                balls.splice(index, 1);
+            }
+        }
+    });
+
+    while (balls.length < Math.floor(level * ballsPerLevel * ballMultiplier * (isNightmareMode ? 3 : 1))) {
+        createBall();
+    }
+
+    checkCollision();
+}
+
+function checkCollision() {
+    const playerRect = player.getBoundingClientRect();
+    balls.forEach((ball, index) => {
+        const ballRect = ball.element.getBoundingClientRect();
+        if (
+            playerRect.left < ballRect.right &&
+            playerRect.right > ballRect.left &&
+            playerRect.top < ballRect.bottom &&
+            playerRect.bottom > ballRect.top
+        ) {
+            if (shieldActive) {
+                gameScreen.removeChild(ball.element);
+                balls.splice(index, 1);
+                ballsDestroyedByShield++;
+                
+                if (ballsDestroyedByShield === 20) {
+                    secretLevelSkip();
+                }
+            } else {
+                gameOver();
+            }
+        }
+    });
+}
+
+function gameOver() {
+    isGameActive = false;
+    clearInterval(gameLoop);
+    clearInterval(levelLoop);
+    deathScreen.style.display = 'flex';
+    document.getElementById('final-score').textContent = level * 100;
+    document.getElementById('final-level').textContent = level;
+    clearBalls();
+}
+
+function levelUp() {
+    level++;
+    levelDisplay.textContent = `Level ${level}`;
+    levelDisplay.classList.add('level-up');
+    setTimeout(() => levelDisplay.classList.remove('level-up'), 500);
+    
+    // Increase difficulty
+    speedMultiplier += 0.1;
+    ballMultiplier += 0.1;
+    
+    if (level === 10) {
+        changeBallDirection('right');
+    }
+}
+
+function changeBallDirection(direction) {
+    balls.forEach(ball => {
+        ball.direction = direction;
+        if (direction === 'right') {
+            ball.element.style.left = '-30px';
+            ball.element.style.top = Math.random() * (gameContainer.clientHeight - 30) + 'px';
+        }
+    });
+}
+
+function clearBalls() {
+    balls.forEach(ball => {
+        gameScreen.removeChild(ball.element);
+    });
+    balls = [];
+}
+
+function activateShield(e) {
+    e.preventDefault();
+    if (!isGameActive || shieldUsed) return;
+    shieldActive = true;
+    shieldUsed = true;
+    shield.style.display = 'block';
+    shield.style.animation = 'none';
+    shield.offsetHeight; // Trigger reflow
+    shield.style.animation = null;
+    setTimeout(() => {
+        shieldActive = false;
+        shield.style.display = 'none';
+    }, 10000); // Shield active for 10 seconds
+}
+
+function secretLevelSkip() {
+    level += 5;
+    levelDisplay.textContent = `Level ${level}`;
+    levelDisplay.classList.add('level-up');
+    setTimeout(() => levelDisplay.classList.remove('level-up'), 500);
+    
+    // Increase difficulty
+    speedMultiplier += 0.5;
+    ballMultiplier += 0.5;
+    
+    if (level >= 10) {
+        changeBallDirection('right');
+    }
+}
+
+nightmareBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent click from propagating to parent elements
+    nightmareModal.style.display = 'block';
+});
+
+nightmareYesBtn.addEventListener('click', () => {
+    isNightmareMode = true;
+    nightmareModal.style.display = 'none';
+    alert('Nightmare mode activated! Good luck!');
+    console.log('Nightmare mode activated'); // Add this line
+});
+
+nightmareNoBtn.addEventListener('click', () => {
+    nightmareModal.style.display = 'none';
+});
+
+playBtn.addEventListener('click', startGame);
+retryBtn.addEventListener('click', startGame);
+homeBtn.addEventListener('click', () => {
+    deathScreen.style.display = 'none';
+    homeScreen.style.display = 'flex';
+});
+
+howToPlayBtn.addEventListener('click', () => {
+    tutorial.style.display = 'flex';
+});
+
+closeTutorialBtn.addEventListener('click', () => {
+    tutorial.style.display = 'none';
+});
+
+settingsBtn.addEventListener('click', () => {
+    document.getElementById('settings-menu').style.display = 'flex';
+});
+
+document.getElementById('close-settings').addEventListener('click', () => {
+    document.getElementById('settings-menu').style.display = 'none';
+});
+
+document.getElementById('easy-btn').addEventListener('click', () => {
+    difficulty = 'easy';
+    document.getElementById('settings-menu').style.display = 'none';
+});
+
+document.getElementById('medium-btn').addEventListener('click', () => {
+    difficulty = 'medium';
+    document.getElementById('settings-menu').style.display = 'none';
+});
+
+document.getElementById('hard-btn').addEventListener('click', () => {
+    difficulty = 'hard';
+    document.getElementById('settings-menu').style.display = 'none';
+});
+</script></body></html>
